@@ -9,3 +9,4 @@ vignettes/Rarr_cache*
 README.Rmd
 README_cache*
 inst/rmd/imgs*
+inst/funding_applications/*
