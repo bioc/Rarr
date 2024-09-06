@@ -16,7 +16,7 @@ BiocManager::install("Rarr")
 
 Once **Rarr** is installed, we have to load it into our R session:
 
-```{r, loading}
+```{r message=FALSE}
 library(Rarr)
 ```
 
