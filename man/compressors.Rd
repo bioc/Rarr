@@ -8,6 +8,7 @@
 \alias{use_bz2}
 \alias{use_lzma}
 \alias{use_lz4}
+\alias{use_zstd}
 \title{Define compression tool and settings}
 \usage{
 use_blosc(cname = "lz4")
@@ -21,6 +22,8 @@ use_bz2(level = 6L)
 use_lzma(level = 9L)
 
 use_lz4()
+
+use_zstd(level = 3)
 }
 \arguments{
 \item{cname}{Blosc is a 'meta-compressor' providing access to several
@@ -28,7 +31,10 @@ compression algorithms.  This argument defines which compression tool
 should be used.  Valid options are: 'lz4', 'lz4hc', 'blosclz', 'zstd',
 'zlib', 'snappy'.}
 
-\item{level}{Specify the compression level to use.}
+\item{level}{Specify the compression level to use.  The range of possible
+values is dependant on the compression tool being used.  For example, for
+\code{use_zlib()} this argument can be between 1 & 9, while for \code{use_zstd()}the
+valid range is 1 to 22.}
 }
 \value{
 A list containing the details of the selected compression tool. This
