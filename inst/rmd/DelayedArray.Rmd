@@ -30,6 +30,11 @@ and confirm that the array is both a **ZarrArray** and **DelayedArray**
 
 ```{r, show-ZarrArray}
 zarr_array
+```
+
+```{r, test-ZarrArray}
 is(zarr_array)
+dim(zarr_array)
+chunk_dim(zarr_array)
 ```
 

@@ -9,9 +9,14 @@ setClass("ZarrArraySeed",
          contains = "Array",
          slots=c(
            zarr_array_path = "character",
-           dim = "integer"
+           dim = "integer",
+           chunk_dim = "integer"
          )
 )
+
+### ---------------------------
+### extract_array() 
+### ---------------------------
 
 .extract_array_from_ZarrArraySeed <- function(x, index) {
   
@@ -25,26 +30,54 @@ setMethod("extract_array", "ZarrArraySeed",
           .extract_array_from_ZarrArraySeed)
 
 ### ---------------------------
+### chunkdim() getter
+### ---------------------------
+
+setMethod("chunkdim", "ZarrArraySeed", function(x) x@chunk_dim)
+
+### ---------------------------
 ### ZarrArraySeed constructor
 ### ---------------------------
 ZarrArraySeed <- function(zarr_array_path) {
   ## normalise path - can be file path or S3 url
   zarr_array_path <- .normalize_array_path( zarr_array_path )
   ## get the array dimensions from the metadata
-  dim <- unlist(
-    zarr_overview(zarr_array_path, as_data_frame = TRUE)$dim
-  )
+  metadata <- zarr_overview(zarr_array_path, as_data_frame = TRUE)
+  dim <- unlist(metadata$dim)
+  chunk_dim <- unlist(metadata$chunk_dim)
+  base_type <- unlist(metadata$data_type)
+  
   new("ZarrArraySeed", 
       zarr_array_path = zarr_array_path, 
-      dim = dim
+      dim = dim,
+      chunk_dim = chunk_dim
   )
 }
+
+.validate_ZarrArraySeed <- function(x) {
+  
+  ## 'dim' slot.
+  msg <- S4Arrays:::validate_dim_slot(x, "dim")
+  if (!isTRUE(msg))
+    return(msg)
+  
+  ## 'chunkdim' slot.
+  x_chunkdim <- x@chunk_dim
+  if (!is.null(x_chunkdim)) {
+    msg <- S4Arrays:::validate_dim_slot(x, "chunk_dim")
+    if (!isTRUE(msg))
+      return(msg)
+  }
+  
+}
+
+setValidity2("ZarrArraySeed", .validate_ZarrArraySeed)
 
 ### --------------------------------
 ### ZarrArray and ZarrMatrix objects
 ### --------------------------------
 
-#' @aliases ZarrArray-class matrixClass,ZarrFArray-method
+#' @aliases ZarrArray-class matrixClass,ZarrArray-method
 #' @rdname ZarrArray-classes
 #'
 #' @param zarr_array_path Path to a Zarr array. A character vector of length 1.
