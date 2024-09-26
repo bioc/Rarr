@@ -187,19 +187,27 @@ read_array_metadata <- function(path, s3_client = NULL) {
 #'
 #' @keywords Internal
 update_fill_value <- function(metadata) {
+  val <- metadata$fill_value
+  datatype <- .parse_datatype(metadata$dtype)
   ## a null fill value implies no missing values.
   ## We set to NA as you can't create an array of NULL in R
-  if (is.null(metadata$fill_value)) {
+  if (is.null(val)) {
     metadata$fill_value <- NA
-  } else if (metadata$fill_value %in% c("NaN", "Infinity", "-Infinity")) {
-    datatype <- .parse_datatype(metadata$dtype)
+  } else if (val %in% c("NaN", "Infinity", "-Infinity")) {
     if (datatype$base_type != "string") {
-      metadata$fill_value <- switch(metadata$fill_value,
+      metadata$fill_value <- switch(val,
         "NaN" = NaN,
         "Infinity" = Inf,
         "-Infinity" = -Inf
       )
     }
+  } else if (is.numeric(metadata$fill_value)) {
+    metadata$fill_value <- switch(datatype$base_type,
+            "float"   = as.double(val),
+            "int"     = as.integer(val),
+            "uint"    = as.integer(val),
+            "complex" = as.complex(val))
+    
   }
   return(metadata)
 }
