@@ -37,7 +37,7 @@ zarr_array
 ```{r, test-ZarrArray}
 is(zarr_array)
 dim(zarr_array)
-chunk_dim(zarr_array)
+chunkdim(zarr_array)
 ```
 
 ### Realizing an in-memory array to Zarr
