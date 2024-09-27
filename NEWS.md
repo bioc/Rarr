@@ -1,3 +1,10 @@
+# Rarr 1.5
+
+* Fixed bug when creating an empty array with a floating datatype.  The fill
+  value would be interpreted as an integer by `read_metadata()` and create 
+  and array of the wrong type.
+* Added support for the ZarrArray S4 class and the DelayedArray framework.
+
 # Rarr 1.3
 
 * Added support for using the zstd compression library for reading and writing.
