@@ -3,7 +3,7 @@
 \docType{class}
 \name{ZarrArray-class}
 \alias{ZarrArray-class}
-\alias{matrixClass,ZarrFArray-method}
+\alias{matrixClass,ZarrArray-method}
 \alias{ZarrMatrix}
 \alias{ZarrMatrix-class}
 \alias{coerce}
