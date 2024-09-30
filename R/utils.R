@@ -41,7 +41,7 @@ check_index <- function(index, metadata) {
 .create_replace_call <- function(x_name, idx_name, idx_length, y_name) {
 
   args <- sprintf("%s[[%d]]", idx_name, seq_len(idx_length))
-  args <- paste(args, collapse = ",")
+  args <- paste0(args, collapse = ",")
   cmd <- sprintf("%s[%s] <- %s", x_name, args, y_name)
   
   return(cmd)

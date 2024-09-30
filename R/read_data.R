@@ -72,45 +72,59 @@ read_zarr_array <- function(zarr_array_path, index, s3_client) {
   return(res$output)
 }
 
+.extract_elements <- function(i, metadata, index, required_chunks, zarr_array_path, s3_client, tmp) {
+  ## find elements to select from the chunk and what in the output we replace
+  index_in_result <- index_in_chunk <- list()
+  alt_chunk_dim <- unlist(metadata$chunks)
+  
+  for (j in seq_len(ncol(required_chunks))) {
+    index_in_result[[j]] <- which(tmp[[j]] == required_chunks[i, j])
+    ## are we requesting values outside the array due to overhanging chunks?
+    outside_extent <- index_in_result[[j]] > metadata$shape[[j]]
+    if (any(outside_extent))
+      index_in_result[[j]] <- index_in_result[[j]][-outside_extent]
+    if (any(index_in_result[[j]] == metadata$shape[[j]])) 
+      alt_chunk_dim[j] <- length(index_in_result[[j]])
+    
+    index_in_chunk[[j]] <- ((index[[j]][index_in_result[[j]]] - 1) %% metadata$chunks[[j]]) + 1
+  }
+  
+  ## read this chunk
+  chunk <- read_chunk(zarr_array_path,
+                      chunk_id = required_chunks[i, ],
+                      metadata = metadata,
+                      s3_client = s3_client,
+                      alt_chunk_dim = alt_chunk_dim
+  )
+  warn <- chunk$warning[1]
+  chunk_data <- chunk$chunk_data
+  
+  ## extract the required elements from the chunk
+  selection <- R.utils::extract(chunk_data, indices = index_in_chunk, drop = FALSE)
+  
+  return(list(selection, index_in_result, warning = warn))
+}
+
+
 #' @importFrom R.utils extract
 read_data <- function(required_chunks, zarr_array_path, s3_client, 
                       index, metadata) {
 
   warn <- 0L
+  
+  tmp <- list()
+  for(j in seq_len(ncol(required_chunks))) {
+    tmp[[j]] <- (index[[j]] - 1) %/% metadata$chunks[[j]]
+  }
 
   ## hopefully we can eventually do this in parallel
-  chunk_selections <- lapply(seq_len(nrow(required_chunks)), FUN = function(i) {
-    ## find elements to select from the chunk and what in the output we replace
-    index_in_result <- index_in_chunk <- list()
-    alt_chunk_dim <- unlist(metadata$chunks)
-
-    for (j in seq_len(ncol(required_chunks))) {
-      index_in_result[[j]] <- which((index[[j]] - 1) %/% metadata$chunks[[j]] == required_chunks[i, j])
-      ## are we requesting values outside the array due to overhanging chunks?
-      outside_extent <- index_in_result[[j]] > metadata$shape[[j]]
-      if (any(outside_extent))
-        index_in_result[[j]] <- index_in_result[[j]][-outside_extent]
-      if (any(index_in_result[[j]] == metadata$shape[[j]])) 
-        alt_chunk_dim[j] <- length(index_in_result[[j]])
-      
-      index_in_chunk[[j]] <- ((index[[j]][index_in_result[[j]]] - 1) %% metadata$chunks[[j]]) + 1
-    }
-
-    ## read this chunk
-    chunk <- read_chunk(zarr_array_path,
-      chunk_id = required_chunks[i, ],
-      metadata = metadata,
-      s3_client = s3_client,
-      alt_chunk_dim = alt_chunk_dim
-    )
-    warn <- chunk$warning[1]
-    chunk_data <- chunk$chunk_data
-
-    ## extract the required elements from the chunk
-    selection <- R.utils::extract(chunk_data, indices = index_in_chunk, drop = FALSE)
-
-    return(list(selection, index_in_result, warning = warn))
-  })
+  chunk_selections <- lapply(seq_len(nrow(required_chunks)), 
+                             FUN = .extract_elements,
+                             metadata = metadata, index = index,
+                             required_chunks = required_chunks,
+                             zarr_array_path = zarr_array_path,
+                             s3_client = s3_client,
+                             tmp = tmp)
   
   ## predefine our array to be populated from the read chunks
   output <- array(metadata$fill_value, dim = vapply(index, length, integer(1)))
@@ -201,7 +215,7 @@ read_chunk <- function(zarr_array_path, chunk_id, metadata, s3_client = NULL,
   dim_separator <- ifelse(is.null(metadata$dimension_separator),
     yes = ".", no = metadata$dimension_separator
   )
-  chunk_id <- paste(chunk_id, collapse = dim_separator)
+  chunk_id <- paste0(chunk_id, collapse = dim_separator)
 
   datatype <- .parse_datatype(metadata$dtype)
   chunk_file <- paste0(zarr_array_path, chunk_id)

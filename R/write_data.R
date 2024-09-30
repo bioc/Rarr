@@ -297,10 +297,14 @@ update_zarr_array <- function(zarr_array_path, x, index) {
   ## create all possible chunk names, then remove those that won't be touched
   chunk_names <- expand.grid(lapply(zarr_dim %/% chunk_dim, seq_len)) - 1
   chunk_needed <- rep(FALSE, nrow(chunk_names))
+  
+  ## determine which chunk each of the requests indices belongs to
+  chunk_idx <- mapply(\(x,y) { (x-1) %/% y }, index, chunk_dim)
+  
   for (i in seq_len(nrow(chunk_names))) {
     idx_in_zarr <- list()
     for (j in seq_along(zarr_dim)) {
-      idx_in_zarr[[j]] <- index[[j]][which((index[[j]] - 1) %/% chunk_dim[j] == chunk_names[i, j])]
+      idx_in_zarr[[j]] <- index[[j]][which(chunk_idx[[j]] == chunk_names[i, j])]
     }
     chunk_needed[i] <- all(lengths(idx_in_zarr) > 0)
   }
@@ -312,29 +316,32 @@ update_zarr_array <- function(zarr_array_path, x, index) {
   ## TODO: maybe this can be done in parallel is bplapply() ?
   res <- lapply(chunk_ids,
     FUN = .update_chunk, x = x, path = zarr_array_path,
-    chunk_dim = chunk_dim, index = index,
+    chunk_dim = chunk_dim, chunk_idx = chunk_idx,
     metadata = metadata
   )
 
   return(invisible(all(unlist(res))))
 }
 
-.update_chunk <- function(chunk_id, x, path, chunk_dim, index,
-                          metadata) {
+.update_chunk <- function(chunk_id, x, path, chunk_dim,
+                          chunk_idx, metadata) {
   chunk_id_split <- as.integer(
     strsplit(chunk_id, metadata$dimension_separator,
       fixed = TRUE
     )[[1]]
   )
   chunk_path <- paste0(path, chunk_id)
+  
+  ## determine which chunk each of the requests indices belongs to
+  #chunk_idx <- mapply(\(x,y) { (x-1) %/% y }, index, chunk_dim)
 
   ## determine which elements of x are being used and where in this specific
   ## chunk they should be inserted
   ## TODO: This is pretty ugly, maybe there's something more elegant
   idx_in_zarr <- idx_in_x <- idx_in_chunk <- list()
   for (j in seq_along(chunk_dim)) {
-    idx_in_zarr[[j]] <- index[[j]][which((index[[j]] - 1) %/% chunk_dim[j] == chunk_id_split[j])]
-    idx_in_x[[j]] <- which((index[[j]] - 1) %/% chunk_dim[j] == chunk_id_split[j])
+    idx_in_x[[j]] <- which(chunk_idx[[j]] == chunk_id_split[j])
+    idx_in_zarr[[j]] <- index[[j]][ idx_in_x[[j]] ]
     idx_in_chunk[[j]] <- ((idx_in_zarr[[j]] - 1) %% chunk_dim[j]) + 1
   }
 
