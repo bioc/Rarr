@@ -72,13 +72,13 @@ read_zarr_array <- function(zarr_array_path, index, s3_client) {
   return(res$output)
 }
 
-.extract_elements <- function(i, metadata, index, required_chunks, zarr_array_path, s3_client, tmp) {
+.extract_elements <- function(i, metadata, index, required_chunks, zarr_array_path, s3_client, chunk_idx) {
   ## find elements to select from the chunk and what in the output we replace
   index_in_result <- index_in_chunk <- list()
   alt_chunk_dim <- unlist(metadata$chunks)
   
   for (j in seq_len(ncol(required_chunks))) {
-    index_in_result[[j]] <- which(tmp[[j]] == required_chunks[i, j])
+    index_in_result[[j]] <- which(chunk_idx[[j]] == required_chunks[i, j])
     ## are we requesting values outside the array due to overhanging chunks?
     outside_extent <- index_in_result[[j]] > metadata$shape[[j]]
     if (any(outside_extent))
@@ -112,11 +112,9 @@ read_data <- function(required_chunks, zarr_array_path, s3_client,
 
   warn <- 0L
   
-  tmp <- list()
-  for(j in seq_len(ncol(required_chunks))) {
-    tmp[[j]] <- (index[[j]] - 1) %/% metadata$chunks[[j]]
-  }
-
+  ## determine which chunk each of the requests indices belongs to
+  chunk_idx <- mapply(\(x,y) { (x-1) %/% y }, index, metadata$chunks)
+  
   ## hopefully we can eventually do this in parallel
   chunk_selections <- lapply(seq_len(nrow(required_chunks)), 
                              FUN = .extract_elements,
@@ -124,7 +122,7 @@ read_data <- function(required_chunks, zarr_array_path, s3_client,
                              required_chunks = required_chunks,
                              zarr_array_path = zarr_array_path,
                              s3_client = s3_client,
-                             tmp = tmp)
+                             chunk_idx = chunk_idx)
   
   ## predefine our array to be populated from the read chunks
   output <- array(metadata$fill_value, dim = vapply(index, length, integer(1)))
@@ -217,7 +215,7 @@ read_chunk <- function(zarr_array_path, chunk_id, metadata, s3_client = NULL,
   )
   chunk_id <- paste0(chunk_id, collapse = dim_separator)
 
-  datatype <- .parse_datatype(metadata$dtype)
+  datatype <- metadata$datatype
   chunk_file <- paste0(zarr_array_path, chunk_id)
 
   if (nzchar(Sys.getenv("RARR_DEBUG"))) { message(chunk_file) }
@@ -285,7 +283,7 @@ read_chunk <- function(zarr_array_path, chunk_id, metadata, s3_client = NULL,
 #'
 #' @keywords Internal
 .format_chunk <- function(decompressed_chunk, metadata, alt_chunk_dim) {
-  datatype <- .parse_datatype(metadata$dtype)
+  datatype <- metadata$datatype
   
   ## It doesn't seem clear if the on disk chunk will contain the overflow 
   ## values or not, so we try both approaches.
@@ -356,7 +354,7 @@ read_chunk <- function(zarr_array_path, chunk_id, metadata, s3_client = NULL,
 #' @keywords Internal
 .decompress_chunk <- function(compressed_chunk, metadata) {
   decompressor <- metadata$compressor$id
-  datatype <- .parse_datatype(metadata$dtype)
+  datatype <- metadata$datatype
   buffer_size <- get_chunk_size(datatype, dimensions = metadata$chunks)
 
   if(is.null(decompressor)) {

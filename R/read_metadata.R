@@ -164,6 +164,9 @@ read_array_metadata <- function(path, s3_client = NULL) {
   }
 
   metadata <- update_fill_value(metadata)
+  ## if we do this here, we save many repeated calls to .parse_datatype
+  ## the parsed version is used each time a chunk is read
+  metadata$datatype <- .parse_datatype(metadata$dtype)
 
   return(metadata)
 }
