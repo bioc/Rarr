@@ -4,6 +4,7 @@
   value would be interpreted as an integer by `read_metadata()` and create 
   and array of the wrong type.
 * Added support for the ZarrArray S4 class and the DelayedArray framework.
+* Improvements to read and write performance.
 
 # Rarr 1.3
 
