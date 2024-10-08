@@ -54,30 +54,30 @@ ZarrArraySeed <- function(zarr_array_path) {
   )
 }
 
-.validate_ZarrArraySeed <- function(x) {
-  
-  ## 'dim' slot.
-  msg <- S4Arrays:::validate_dim_slot(x, "dim")
-  if (!isTRUE(msg))
-    return(msg)
-  
-  ## 'chunkdim' slot.
-  x_chunkdim <- x@chunk_dim
-  if (!is.null(x_chunkdim)) {
-    msg <- S4Arrays:::validate_dim_slot(x, "chunk_dim")
-    if (!isTRUE(msg))
-      return(msg)
-  }
-  
-}
-
-setValidity2("ZarrArraySeed", .validate_ZarrArraySeed)
+# .validate_ZarrArraySeed <- function(x) {
+#   
+#   ## 'dim' slot.
+#   msg <- S4Arrays:::validate_dim_slot(x, "dim")
+#   if (!isTRUE(msg))
+#     return(msg)
+#   
+#   ## 'chunkdim' slot.
+#   x_chunkdim <- x@chunk_dim
+#   if (!is.null(x_chunkdim)) {
+#     msg <- S4Arrays:::validate_dim_slot(x, "chunk_dim")
+#     if (!isTRUE(msg))
+#       return(msg)
+#   }
+#   
+# }
+# 
+# setValidity2("ZarrArraySeed", .validate_ZarrArraySeed)
 
 ### --------------------------------
 ### ZarrArray and ZarrMatrix objects
 ### --------------------------------
 
-#' @aliases ZarrArray-class matrixClass,ZarrArray-method
+#' @aliases ZarrArray-class matrixClass,ZarrArray-method chunkdim,ZarrArraySeed-method
 #' @rdname ZarrArray-classes
 #'
 #' @param zarr_array_path Path to a Zarr array. A character vector of length 1.

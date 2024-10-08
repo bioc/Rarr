@@ -4,6 +4,7 @@
 \name{ZarrArray-class}
 \alias{ZarrArray-class}
 \alias{matrixClass,ZarrArray-method}
+\alias{chunkdim,ZarrArraySeed-method}
 \alias{ZarrMatrix}
 \alias{ZarrMatrix-class}
 \alias{coerce}

@@ -3,6 +3,27 @@
 ### -------------------------------------------------------------------------
 ###
 
+#' Write arrays to Zarr 
+#'
+#' Write array data to a Zarr backend via \pkg{DelayedArray}'s \linkS4class{RealizationSink} machinery.
+#' 
+#' @aliases
+#' writeZarrArray
+#' ZarrRealizationSink
+#' ZarrRealizationSink-class
+#' write_block,ZarrRealizationSink-method
+#' type,ZarrRealizationSink-method
+#' chunkdim,ZarrRealizationSink-method
+#' coerce,ZarrRealizationSink,ZarrMatrix-method
+#' coerce,ZarrRealizationSink,ZarrArray-method
+#' coerce,ZarrRealizationSink,ZarrArraySeed-method
+#' coerce,ZarrRealizationSink,DelayedArray-method
+#' coerce,ANY,ZarrArray-method
+#' coerce,ANY,ZarrRealizationSink-method
+#'
+#' @name ZarrRealizationSink
+NULL
+
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### ZarrRealizationSink objects
