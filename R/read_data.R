@@ -113,7 +113,7 @@ read_data <- function(required_chunks, zarr_array_path, s3_client,
   warn <- 0L
   
   ## determine which chunk each of the requests indices belongs to
-  chunk_idx <- mapply(\(x,y) { (x-1) %/% y }, index, metadata$chunks)
+  chunk_idx <- mapply(\(x,y) { (x-1) %/% y }, index, metadata$chunks, SIMPLIFY = FALSE)
   
   ## hopefully we can eventually do this in parallel
   chunk_selections <- lapply(seq_len(nrow(required_chunks)), 

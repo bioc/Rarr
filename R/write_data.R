@@ -299,7 +299,7 @@ update_zarr_array <- function(zarr_array_path, x, index) {
   chunk_needed <- rep(FALSE, nrow(chunk_names))
   
   ## determine which chunk each of the requests indices belongs to
-  chunk_idx <- mapply(\(x,y) { (x-1) %/% y }, index, chunk_dim)
+  chunk_idx <- .mapply(\(x,y) { (x-1) %/% y }, dots = list(index, chunk_dim), MoreArgs = NULL)
   
   for (i in seq_len(nrow(chunk_names))) {
     idx_in_zarr <- list()
@@ -317,23 +317,20 @@ update_zarr_array <- function(zarr_array_path, x, index) {
   res <- lapply(chunk_ids,
     FUN = .update_chunk, x = x, path = zarr_array_path,
     chunk_dim = chunk_dim, chunk_idx = chunk_idx,
-    metadata = metadata
+    index = index, metadata = metadata
   )
 
   return(invisible(all(unlist(res))))
 }
 
 .update_chunk <- function(chunk_id, x, path, chunk_dim,
-                          chunk_idx, metadata) {
+                          chunk_idx, index, metadata) {
   chunk_id_split <- as.integer(
     strsplit(chunk_id, metadata$dimension_separator,
       fixed = TRUE
     )[[1]]
   )
   chunk_path <- paste0(path, chunk_id)
-  
-  ## determine which chunk each of the requests indices belongs to
-  #chunk_idx <- mapply(\(x,y) { (x-1) %/% y }, index, chunk_dim)
 
   ## determine which elements of x are being used and where in this specific
   ## chunk they should be inserted
@@ -362,8 +359,8 @@ update_zarr_array <- function(zarr_array_path, x, index) {
     input_chunk = chunk_in_mem, 
     chunk_path = chunk_path,
     compressor = metadata$compressor,
-    data_type_size = .parse_datatype(metadata$dtype)$nbytes,
-    is_base64 = (.parse_datatype(metadata$dtype)$base_type == "unicode")
+    data_type_size = metadata$datatype$nbytes,
+    is_base64 = (metadata$datatype$base_type == "unicode")
   )
 
 }
