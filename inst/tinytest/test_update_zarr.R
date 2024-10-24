@@ -14,5 +14,17 @@ expect_identical( list.files(path), "0")
 x <- rep(20L, 5);
 expect_true(update_zarr_array(path, x = x, index = list( c(91, 93, 95, 97, 99)  )))
 expect_identical(read_zarr_array(path)[91:100], array(rep(c(20L, 100L), 5), dim = 10))
-## only a single chunk file should have been created
+## only two chunk files should have been created
 expect_true( length(list.files(path)) == 2 )
+
+
+## Test we can update regions where we provide NULL to the index argument for some dimensions
+path <- tempfile()
+res <- create_empty_zarr_array(zarr_array_path = path, 
+                               dim = c(20, 20), chunk_dim = c(10, 10), data_type = "integer", 
+                               fill_value = 0L)
+x <- matrix(1:40L, ncol = 2)
+index <- list(NULL, 1:2)
+
+expect_true(update_zarr_array(path, x = x, index = index))
+expect_identical(read_zarr_array(path, index = index), x)

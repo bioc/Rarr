@@ -272,6 +272,7 @@ update_zarr_array <- function(zarr_array_path, x, index) {
 
   zarr_array_path <- .normalize_array_path(zarr_array_path)
   metadata <- read_array_metadata(zarr_array_path)
+  index <- check_index(index, metadata = metadata)
 
   data_type <- switch(storage.mode(x),
     "integer" = "<i",

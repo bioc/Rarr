@@ -3,6 +3,9 @@
 * Fixed bug when creating an empty array with a floating datatype.  The fill
   value would be interpreted as an integer by `read_metadata()` and create 
   and array of the wrong type.
+* Fixed bug in `update_zarr_array()` when `NULL` was provided to one or more
+  dimensions in the `index` argument.  This was parsed incorrectly and the 
+  underlying zarr was not modified.
 * Added support for the ZarrArray S4 class and the DelayedArray framework.
 * Improvements to read and write performance.
 
