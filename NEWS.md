@@ -6,6 +6,10 @@
 * Fixed bug in `update_zarr_array()` when `NULL` was provided to one or more
   dimensions in the `index` argument.  This was parsed incorrectly and the 
   underlying zarr was not modified.
+* Fixed bug in reading 64-bit integer arrays compressed with ZLIB or LZ4.  
+  The calculated decompression buffer size was too small and reading would 
+  fail. (Thanks to Dan Auerbach for the report: 
+  https://github.com/grimbough/Rarr/issues/10)
 * Added support for the ZarrArray S4 class and the DelayedArray framework.
 * Improvements to read and write performance.
 
