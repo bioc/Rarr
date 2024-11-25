@@ -36,6 +36,12 @@ setMethod("extract_array", "ZarrArraySeed",
 setMethod("chunkdim", "ZarrArraySeed", function(x) x@chunk_dim)
 
 ### ---------------------------
+### path() getter
+### ---------------------------
+
+setMethod("path", "ZarrArraySeed", function(object) object@zarr_array_path)
+
+### ---------------------------
 ### ZarrArraySeed constructor
 ### ---------------------------
 ZarrArraySeed <- function(zarr_array_path) {

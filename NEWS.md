@@ -1,3 +1,8 @@
+# Rarr 1.7
+
+* Added `path()` method for `ZarrArray` class that returns the location of the
+  zarr array root.
+
 # Rarr 1.5
 
 * Fixed bug when creating an empty array with a floating datatype.  The fill
