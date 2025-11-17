@@ -1,3 +1,12 @@
+# Rarr 1.10.1
+
+## Bug fixes
+
+* `zarr_overview()` no longer fails on consolidated metadata containing uncompressed
+  arrays. This was introduced in https://github.com/Huber-group-EMBL/Rarr/pull/45.
+  Thanks to Sharla Gelfand for reporting the issue and providing test data.
+  Backported from `devel`.
+
 # Rarr 1.9
 
 ## New features
