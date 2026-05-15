@@ -353,8 +353,8 @@ zarr_overview <- function(zarr_array_path, s3_client, as_data_frame = FALSE) {
     # Their length has been calculated in .parse_datatype_v3() and stored in nbytes.
     metadata$data_type <- switch(
       metadata$data_type$name,
-      "fixed-length-ucs4" = "unicode",
-      "fixed-length-ascii" = "string"
+      "fixed_length_utf32" = "unicode",
+      "null_terminated_bytes" = "string"
     )
   }
 
