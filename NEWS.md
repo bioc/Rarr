@@ -1,3 +1,9 @@
+# Rarr 2.0 (backports from Rarr 2.1)
+
+## Breaking changes
+
+* The name and configuration options for the fixed-length-ascii (|S in Zarr v2) and fixed-length-ucs4 (<U or >U in Zarr v2) data types have been updated to null_terminated_bytes and fixed_length_utf32 respectively to match their newly specified format in Zarr v3.
+
 # Rarr 1.99
 
 ## Breaking changes
