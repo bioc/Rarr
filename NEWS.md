@@ -1,5 +1,10 @@
 # Rarr 2.0 (backports from Rarr 2.1)
 
+## New features
+
+* Rarr now compiles properly on Window ARM64, thanks a to report and patch from
+  Jeroen Ooms (#224).
+
 ## Breaking changes
 
 * The name and configuration options for the fixed-length-ascii (|S in Zarr v2) and fixed-length-ucs4 (<U or >U in Zarr v2) data types have been updated to null_terminated_bytes and fixed_length_utf32 respectively to match their newly specified format in Zarr v3.
