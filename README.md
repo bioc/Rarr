@@ -10,6 +10,7 @@ Zarr arrays with Rarr
   - [Reading from S3 storage](#read-s3)
   - [Writing to a Zarr array](#writing-to-a-zarr-array)
 - [Required system libraries](#required-system-libraries)
+  - [Funding](#funding)
 
 <!-- badges: start -->
 
@@ -265,6 +266,17 @@ may fail to work correctly.
 This only concerns users installing the package from source. If you are
 using the pre-built binaries for Windows or Mac OSX distributed by
 Bioconductor then this should not be an issue for you.
+
+## Funding
+
+Funding for continued development and maintenance of this package is
+provided by the German Network for Bioinformatics Infrastructure.
+
+This is an approved de.NBI service. Please help us improve by taking
+[our short user
+survey](https://www.surveymonkey.de/r/denbi-service?sc=hd-hub&tool=rarr).
+
+<a href="https://www.denbi.de"><img src="https://tess.elixir-europe.org/system/content_providers/images/000/000/063/original/deNBI_Logo_rgb.jpg" width="400" align="left"></a>
 
 [^1]: you only need to do the installation step once
 
