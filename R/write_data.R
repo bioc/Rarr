@@ -41,8 +41,8 @@
         " is not supported. ",
         "Only arrays of type 'integer', 'double', 'character' and ",
         "'logical' can be written, or one of the equivalent Numpy ",
-        "formats: '|i1', '<i2', '<i4', '<i8', '|u1', '<u2', '<u4', ",
-        "'<u8', '<f4', '<f8', '|S', '<U', '|b1', '|O'.",
+        "formats: ",
+        toString(sprintf("'%s'", supported_types)),
         call. = FALSE
       )
     }
