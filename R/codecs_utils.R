@@ -82,48 +82,46 @@
 
   # Compressors
   for (candidate_codec in bytes_bytes_codecs) {
-    if (candidate_codec %in% codecs_names) {
-      cfg <- codecs[[candidate_codec]]$configuration
-      # Aliases
-      candidate_codec <- switch(
-        candidate_codec,
-        "numcodecs.lz4" = "lz4",
-        "zstd" = if (has_zstd()) {
-          "zstd_base"
-        } else {
-          "zstd_custom"
-        },
-        candidate_codec
+    cfg <- codecs[[candidate_codec]]$configuration
+    # Aliases
+    candidate_codec <- switch(
+      candidate_codec,
+      "numcodecs.lz4" = "lz4",
+      "zstd" = if (has_zstd()) {
+        "zstd_base"
+      } else {
+        "zstd_custom"
+      },
+      candidate_codec
+    )
+    if (candidate_codec == "zstd_custom") {
+      w <- warningCondition(
+        paste0(
+          "Rarr now relies on the base R `memCompress()` and `memDecompress()` ",
+          "functions for zstd with the expectation it is available everywhere. ",
+          "If you are seeing this warning, it means your R installation does ",
+          "not have zstd support. Please report at ",
+          "https://github.com/Huber-group-EMBL/Rarr/issues.\n",
+          "If no reports are received, this support will be removed in a ",
+          "future release.\n",
+          "You can silence this warning by setting ",
+          "`globalCallingHandlers(RarrZstdMissingWarning = ",
+          "function(w) invokeRestart(\"muffleWarning\"))`."
+        ),
+        class = "RarrZstdMissingWarning"
       )
-      if (candidate_codec == "zstd_custom") {
-        w <- warningCondition(
-          paste0(
-            "Rarr now relies on the base R `memCompress()` and `memDecompress()` ",
-            "functions for zstd with the expectation it is available everywhere. ",
-            "If you are seeing this warning, it means your R installation does ",
-            "not have zstd support. Please report at ",
-            "https://github.com/Huber-group-EMBL/Rarr/issues.\n",
-            "If no reports are received, this support will be removed in a ",
-            "future release.\n",
-            "You can silence this warning by setting ",
-            "`globalCallingHandlers(RarrZstdMissingWarning = ",
-            "function(w) invokeRestart(\"muffleWarning\"))`."
-          ),
-          class = "RarrZstdMissingWarning"
-        )
-        warning(w)
-      }
-      func_name <- paste(
-        "codec",
-        candidate_codec,
-        operation,
-        sep = "_"
-      )
-      bytes_bytes_env[[candidate_codec]] <- Partial_with_splicing(
-        func_name,
-        !!!cfg
-      )
+      warning(w)
     }
+    func_name <- paste(
+      "codec",
+      candidate_codec,
+      operation,
+      sep = "_"
+    )
+    bytes_bytes_env[[candidate_codec]] <- Partial_with_splicing(
+      func_name,
+      !!!cfg
+    )
   }
 
   return(
