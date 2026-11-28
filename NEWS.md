@@ -1,3 +1,11 @@
+# Rarr 2.2.1
+
+## Backported bug fix
+
+* `update_zarr_array()` correctly removes existing chunks when the update 
+  process would make them full of fill values. Thanks to a patch from
+  Chen-Yang Su.
+
 # Rarr 2.1
 
 ## Breaking changes
